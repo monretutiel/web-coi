@@ -209,6 +209,17 @@
         </div>
       </div>
 
+      <!-- Guardar en ranking global -->
+      <div id="global-save-box" style="margin:1.2rem 0;padding:1.2rem 1.4rem;background:#f0f9ff;border-radius:12px;border:1.5px solid #bae6fd;text-align:left">
+        <p style="font-size:.88rem;font-weight:700;color:#0369a1;margin-bottom:.7rem">Guardar en el ranking global</p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <input id="global-name" type="text" placeholder="Tu nombre o alias" maxlength="25"
+            style="flex:1;min-width:150px;padding:.65rem .9rem;border:1.5px solid #bae6fd;border-radius:8px;font-size:.92rem;outline:none;font-family:inherit" />
+          <button id="btn-save-global" class="btn btn-primary" style="white-space:nowrap;padding:.65rem 1.2rem">Guardar →</button>
+        </div>
+        <p id="save-msg" style="font-size:.82rem;margin:.5rem 0 0;display:none"></p>
+      </div>
+
       <div class="result-actions">
         <button id="btn-retry" class="btn btn-primary">Repetir misma config.</button>
         <button id="btn-new" class="btn btn-ghost">Nueva selección</button>
@@ -224,9 +235,35 @@
 
   <!-- ══ RANKING ═════════════════════════════════════════════ -->
   <div id="ranking-view" style="display:none">
+
+    <!-- Ranking global (Firebase) -->
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:.5rem">
-        <h2 style="margin:0">🏆 Ranking local</h2>
+        <h2 style="margin:0">🌍 Ranking Global</h2>
+        <button id="btn-refresh-ranking" class="btn btn-ghost" style="font-size:.82rem;padding:.4rem .9rem">
+          Actualizar
+        </button>
+      </div>
+      <table class="ranking-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Nota</th>
+            <th>Correctas</th>
+            <th>Tiempo</th>
+          </tr>
+        </thead>
+        <tbody id="global-ranking-tbody">
+          <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Historial local -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:.5rem">
+        <h2 style="margin:0">📋 Mi historial</h2>
         <button id="btn-clear-ranking" class="btn btn-ghost" style="font-size:.82rem;padding:.4rem .9rem;color:#c81e1e;border-color:#fca5a5">
           Borrar historial
         </button>
@@ -245,6 +282,7 @@
         <tbody id="ranking-tbody"></tbody>
       </table>
     </div>
+
   </div>
 
 </main>

@@ -2,6 +2,9 @@
    COMUNICACIONES INDUSTRIALES — Quiz App
    ============================================================ */
 
+// ── Firebase Realtime Database ────────────────────────────────
+const DB_URL = 'https://coi-quiz-default-rtdb.europe-west1.firebasedatabase.app/ranking';
+
 // ── Estado global ────────────────────────────────────────────
 const state = {
   view: "home",          // home | quiz | results | ranking
@@ -281,8 +284,18 @@ function renderResults() {
   document.getElementById("stat-skipped").textContent = skipped;
   document.getElementById("stat-time").textContent = formatTime(state.elapsed);
 
-  // Guardar en ranking
+  // Guardar en ranking local
   saveToRanking(nota, correct, total);
+
+  // Guardar estado para el botón de ranking global
+  state.lastResult = { nota: parseFloat(nota), correct, total };
+  document.getElementById('global-name').value = '';
+  document.getElementById('global-name').disabled = false;
+  document.getElementById('btn-save-global').disabled = false;
+  document.getElementById('btn-save-global').textContent = 'Guardar →';
+  const saveMsg = document.getElementById('save-msg');
+  saveMsg.style.display = 'none';
+  saveMsg.textContent = '';
 
   // Revisión pregunta a pregunta
   const list = document.getElementById("review-list");
@@ -330,8 +343,56 @@ function getRanking() {
   try { return JSON.parse(localStorage.getItem("ci_ranking") || "[]"); } catch { return []; }
 }
 
+async function saveToGlobalRanking(name, nota, correct, total) {
+  const entry = {
+    nombre: name.trim().slice(0, 25),
+    nota: parseFloat(nota),
+    correct,
+    total,
+    pct: Math.round(correct / total * 100),
+    time: state.elapsed,
+    date: new Date().toLocaleDateString('es-ES'),
+    ts: Date.now(),
+  };
+  const res = await fetch(DB_URL + '.json', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entry),
+  });
+  if (!res.ok) throw new Error('Error al guardar');
+}
+
+async function renderGlobalRanking() {
+  const tbody = document.getElementById('global-ranking-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem">Cargando...</td></tr>';
+  try {
+    const res = await fetch(DB_URL + '.json');
+    const data = await res.json();
+    if (!data) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem">Aún no hay resultados globales.</td></tr>';
+      return;
+    }
+    const entries = Object.values(data).sort((a, b) => b.nota - a.nota || a.time - b.time).slice(0, 20);
+    const medals = ['🥇','🥈','🥉'];
+    tbody.innerHTML = '';
+    entries.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="rank-pos">${medals[i] || i + 1}</td>
+        <td style="font-weight:600">${escapeHtml(r.nombre || '—')}</td>
+        <td class="rank-score">${r.nota}/10 <small style="color:var(--muted)">(${r.pct}%)</small></td>
+        <td>${r.correct}/${r.total}</td>
+        <td>${formatTime(r.time)}</td>`;
+      tbody.appendChild(tr);
+    });
+  } catch(e) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#dc2626;padding:1.5rem">Error al cargar el ranking.</td></tr>';
+  }
+}
+
 function renderRanking() {
   showView("ranking");
+  renderGlobalRanking();
   const ranking = getRanking();
   const tbody = document.getElementById("ranking-tbody");
   tbody.innerHTML = "";
@@ -368,6 +429,10 @@ document.getElementById("btn-retry").addEventListener("click", () => {
 document.getElementById("btn-new").addEventListener("click", () => showView("home"));
 
 // ── Utils ─────────────────────────────────────────────────────
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -382,6 +447,39 @@ function formatTime(s) {
   const sec = (s % 60).toString().padStart(2, "0");
   return `${m}:${sec}`;
 }
+
+// ── Guardar en ranking global ─────────────────────────────────
+document.getElementById('btn-save-global').addEventListener('click', async function() {
+  const name = document.getElementById('global-name').value.trim();
+  const msg = document.getElementById('save-msg');
+  if (!name) {
+    msg.style.display = '';
+    msg.style.color = '#dc2626';
+    msg.textContent = 'Escribe tu nombre antes de guardar.';
+    return;
+  }
+  if (!state.lastResult) return;
+  this.disabled = true;
+  this.textContent = 'Guardando...';
+  msg.style.display = 'none';
+  try {
+    const { nota, correct, total } = state.lastResult;
+    await saveToGlobalRanking(name, nota, correct, total);
+    msg.style.display = '';
+    msg.style.color = '#16a34a';
+    msg.textContent = '¡Resultado guardado en el ranking global!';
+    this.textContent = 'Guardado ✓';
+    document.getElementById('global-name').disabled = true;
+  } catch(e) {
+    msg.style.display = '';
+    msg.style.color = '#dc2626';
+    msg.textContent = 'Error al guardar. Comprueba tu conexión.';
+    this.disabled = false;
+    this.textContent = 'Guardar →';
+  }
+});
+
+document.getElementById('btn-refresh-ranking').addEventListener('click', renderGlobalRanking);
 
 // ── Init ──────────────────────────────────────────────────────
 renderTopicGrid();
