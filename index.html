@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UD1 Quiz — Comunicaciones Industriales · CFGS Automatización</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── HEADER ───────────────────────────────────────────── -->
+<header>
+  <div class="logo">CI <span>Quiz</span></div>
+  <div style="display:flex;flex-direction:column;gap:.1rem">
+    <span style="color:#fff;font-size:.85rem;font-weight:600">Comunicaciones Industriales · UD1</span>
+    <span style="color:rgba(255,255,255,.6);font-size:.75rem">CFGS Automatización Industrial · J. Monrabal Mateo</span>
+  </div>
+  <nav>
+    <button data-view="home">Inicio</button>
+    <button data-view="ranking">Ranking</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ══ HOME ═══════════════════════════════════════════════ -->
+  <div id="home">
+    <div class="card">
+      <h1>Comunicaciones Industriales — Unidad 1</h1>
+      <p class="subtitle">CFGS Automatización Industrial · Selecciona uno o varios temas y pon a prueba tus conocimientos.</p>
+
+      <!-- Temas -->
+      <p style="font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.05em">
+        1 · Elige temas
+      </p>
+      <div id="topic-grid" class="topic-grid"></div>
+      <button id="btn-select-all" class="btn btn-ghost" style="font-size:.82rem;padding:.4rem .9rem;margin-bottom:1.5rem">
+        Seleccionar todos
+      </button>
+
+      <!-- Opciones -->
+      <p style="font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:.8rem;text-transform:uppercase;letter-spacing:.05em">
+        2 · Configurar cuestionario
+      </p>
+      <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem">
+
+        <!-- Modo -->
+        <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem">
+            <input type="radio" name="mode" value="all" checked />
+            Todas las preguntas (orden aleatorio)
+          </label>
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem">
+            <input type="radio" name="mode" value="random" />
+            Número de preguntas aleatorias
+          </label>
+        </div>
+
+        <!-- Selector número (solo en modo random) -->
+        <div id="num-q-row" style="display:none;align-items:center;gap:.75rem">
+          <label style="font-size:.9rem;color:var(--muted)">Cantidad:</label>
+          <select id="num-questions"></select>
+        </div>
+      </div>
+
+      <button id="btn-start" class="btn btn-primary" disabled>
+        Comenzar cuestionario →
+      </button>
+    </div>
+
+    <!-- Info rápida -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem">
+      <div class="card" style="padding:1rem;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:.3rem">📚</div>
+        <strong id="total-q-count">—</strong>
+        <p style="font-size:.8rem;color:var(--muted);margin-top:.2rem">preguntas disponibles</p>
+      </div>
+      <div class="card" style="padding:1rem;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:.3rem">✅</div>
+        <strong>Con explicación</strong>
+        <p style="font-size:.8rem;color:var(--muted);margin-top:.2rem">cada respuesta incluye justificación</p>
+      </div>
+      <div class="card" style="padding:1rem;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:.3rem">🏆</div>
+        <strong>Nota final</strong>
+        <p style="font-size:.8rem;color:var(--muted);margin-top:.2rem">puntuación sobre 10 y ranking local</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ QUIZ ════════════════════════════════════════════════ -->
+  <div id="quiz-view" style="display:none">
+    <div class="card">
+      <div class="quiz-header">
+        <span id="q-counter" class="quiz-meta"></span>
+        <span id="quiz-timer" class="quiz-timer">⏱ 00:00</span>
+      </div>
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill" style="width:0%"></div>
+      </div>
+
+      <span id="q-topic" class="question-topic"></span>
+      <p id="q-text" class="question-text"></p>
+
+      <div id="options-container" class="options"></div>
+
+      <div id="explanation" class="explanation"></div>
+
+      <div class="quiz-nav">
+        <button id="btn-prev" class="btn btn-ghost">← Anterior</button>
+        <button id="btn-next" class="btn btn-primary">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RESULTS ═════════════════════════════════════════════ -->
+  <div id="results-view" style="display:none">
+    <div class="card" style="text-align:center">
+      <div class="score-circle">
+        <span id="score-pct">0%</span>
+        <span id="score-nota">Nota: 0/10</span>
+      </div>
+      <h2>Resultados del cuestionario</h2>
+      <p class="result-subtitle" id="result-msg"></p>
+
+      <div class="stats-row">
+        <div class="stat-box ok">
+          <div class="val" id="stat-correct">0</div>
+          <div class="lbl">Correctas</div>
+        </div>
+        <div class="stat-box ko">
+          <div class="val" id="stat-wrong">0</div>
+          <div class="lbl">Incorrectas</div>
+        </div>
+        <div class="stat-box skip">
+          <div class="val" id="stat-skipped">0</div>
+          <div class="lbl">Sin responder</div>
+        </div>
+        <div class="stat-box">
+          <div class="val" id="stat-time">00:00</div>
+          <div class="lbl">Tiempo</div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button id="btn-retry" class="btn btn-primary">Repetir misma config.</button>
+        <button id="btn-new" class="btn btn-ghost">Nueva selección</button>
+      </div>
+    </div>
+
+    <!-- Revisión -->
+    <div class="card">
+      <h3 style="margin-bottom:1rem;font-size:1.1rem">Revisión de respuestas</h3>
+      <div id="review-list" class="review-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ RANKING ═════════════════════════════════════════════ -->
+  <div id="ranking-view" style="display:none">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap;gap:.5rem">
+        <h2 style="margin:0">🏆 Ranking local</h2>
+        <button id="btn-clear-ranking" class="btn btn-ghost" style="font-size:.82rem;padding:.4rem .9rem;color:#c81e1e;border-color:#fca5a5">
+          Borrar historial
+        </button>
+      </div>
+      <p class="empty-ranking" id="ranking-empty" style="display:none">Aún no hay resultados guardados. ¡Completa tu primer cuestionario!</p>
+      <table class="ranking-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nota</th>
+            <th>Correctas</th>
+            <th>Tiempo</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="ranking-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<footer style="text-align:center;padding:1.5rem 1rem;font-size:.8rem;color:var(--muted);border-top:1px solid var(--border);margin-top:1rem">
+  <strong style="color:var(--text)">Javier Monrabal Mateo</strong> &nbsp;·&nbsp;
+  Comunicaciones Industriales — Unidad 1 &nbsp;·&nbsp;
+  CFGS Automatización Industrial
+  <br><span style="font-size:.75rem;opacity:.7">Recurso de uso educativo</span>
+</footer>
+
+<script src="questions.js"></script>
+<script src="app.js"></script>
+<script>
+  // Contador total de preguntas en home
+  const tot = TEMAS.reduce((s,t) => s + t.preguntas.length, 0);
+  document.getElementById("total-q-count").textContent = tot;
+</script>
+</body>
+</html>
