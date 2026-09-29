@@ -45,13 +45,16 @@ document.querySelectorAll("header nav button[data-view]").forEach(b => {
 function renderTopicGrid() {
   const grid = document.getElementById("topic-grid");
   grid.innerHTML = "";
-  const icons = ["🔌","📡","🌐","🚗","📶","📊","🔗","📻"];
+  const icons = ["📡","🏭","📋","🔄","🔌","📻","⚙️","🌐","🔍","🛠️","💻"];
   TEMAS.forEach((t, i) => {
     const card = document.createElement("div");
     card.className = "topic-card";
     card.dataset.id = t.id;
     card.innerHTML = `
-      <div class="icon">${icons[i] || "📦"}</div>
+      <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem">
+        <span style="font-size:.7rem;font-weight:700;background:var(--primary);color:#fff;padding:.1rem .4rem;border-radius:4px">B${i+1}</span>
+        <span class="icon" style="font-size:1.2rem;margin:0">${icons[i] || "📦"}</span>
+      </div>
       <div class="check">✓</div>
       <h3>${t.nombre}</h3>
       <small>${t.preguntas.length} preguntas</small>`;

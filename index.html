@@ -27,7 +27,7 @@
   <div id="home">
     <div class="card">
       <h1>Comunicaciones Industriales — Unidad 1</h1>
-      <p class="subtitle">CFGS Automatización Industrial · Selecciona uno o varios temas y pon a prueba tus conocimientos.</p>
+      <p class="subtitle">CFGS Automatización Industrial · <strong>110 preguntas</strong> · 11 bloques temáticos · Selecciona temas y pon a prueba tus conocimientos.</p>
 
       <!-- Temas -->
       <p style="font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.05em">
@@ -68,23 +68,39 @@
       </button>
     </div>
 
-    <!-- Info rápida -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem">
-      <div class="card" style="padding:1rem;text-align:center">
-        <div style="font-size:1.5rem;margin-bottom:.3rem">📚</div>
-        <strong id="total-q-count">—</strong>
-        <p style="font-size:.8rem;color:var(--muted);margin-top:.2rem">preguntas disponibles</p>
+    <!-- Estadísticas rápidas -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.75rem;margin-bottom:1.5rem">
+      <div class="card" style="padding:.9rem;text-align:center">
+        <div style="font-size:1.8rem;font-weight:800;color:var(--primary)" id="total-q-count">110</div>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:.15rem">preguntas</p>
       </div>
-      <div class="card" style="padding:1rem;text-align:center">
-        <div style="font-size:1.5rem;margin-bottom:.3rem">✅</div>
-        <strong>Con explicación</strong>
-        <p style="font-size:.8rem;color:var(--muted);margin-top:.2rem">cada respuesta incluye justificación</p>
+      <div class="card" style="padding:.9rem;text-align:center">
+        <div style="font-size:1.8rem;font-weight:800;color:var(--primary)">11</div>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:.15rem">bloques temáticos</p>
       </div>
-      <div class="card" style="padding:1rem;text-align:center">
-        <div style="font-size:1.5rem;margin-bottom:.3rem">🏆</div>
-        <strong>Nota final</strong>
-        <p style="font-size:.8rem;color:var(--muted);margin-top:.2rem">puntuación sobre 10 y ranking local</p>
+      <div class="card" style="padding:.9rem;text-align:center">
+        <div style="font-size:1.8rem;font-weight:800;color:var(--success)">✓</div>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:.15rem">con explicación</p>
       </div>
+      <div class="card" style="padding:.9rem;text-align:center">
+        <div style="font-size:1.8rem;font-weight:800;color:#d97706">10</div>
+        <p style="font-size:.78rem;color:var(--muted);margin-top:.15rem">nota sobre 10</p>
+      </div>
+    </div>
+
+    <!-- Índice de bloques -->
+    <div class="card" style="padding:1.2rem 1.5rem">
+      <p style="font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Índice de contenidos — UT1</p>
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border)">
+            <th style="text-align:left;padding:.4rem .6rem;color:var(--muted);font-size:.75rem;text-transform:uppercase">Bloque</th>
+            <th style="text-align:left;padding:.4rem .6rem;color:var(--muted);font-size:.75rem;text-transform:uppercase">Contenido</th>
+            <th style="text-align:center;padding:.4rem .6rem;color:var(--muted);font-size:.75rem;text-transform:uppercase">Preg.</th>
+          </tr>
+        </thead>
+        <tbody id="index-tbody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -192,9 +208,33 @@
 <script src="questions.js"></script>
 <script src="app.js"></script>
 <script>
-  // Contador total de preguntas en home
+  // Contador total
   const tot = TEMAS.reduce((s,t) => s + t.preguntas.length, 0);
   document.getElementById("total-q-count").textContent = tot;
+
+  // Rellena tabla índice
+  const tbody = document.getElementById("index-tbody");
+  const rowColors = ["#eff6ff","#f0fdf4","#fefce8","#fdf4ff","#fff7ed",
+                     "#f0f9ff","#fdf2f8","#f7fee7","#fef2f2","#f8fafc","#f0fdfa"];
+  TEMAS.forEach((t, i) => {
+    const tr = document.createElement("tr");
+    tr.style.borderBottom = "1px solid var(--border)";
+    tr.innerHTML = `
+      <td style="padding:.55rem .6rem;white-space:nowrap">
+        <span style="display:inline-block;background:var(--primary);color:#fff;font-size:.7rem;font-weight:700;padding:.15rem .45rem;border-radius:4px;margin-right:.3rem">B${i+1}</span>
+      </td>
+      <td style="padding:.55rem .6rem">${t.nombre}</td>
+      <td style="padding:.55rem .6rem;text-align:center;font-weight:700;color:var(--primary)">${t.preguntas.length}</td>`;
+    tbody.appendChild(tr);
+  });
+  // Fila total
+  const tfooter = document.createElement("tr");
+  tfooter.style.borderTop = "2px solid var(--border)";
+  tfooter.innerHTML = `
+    <td style="padding:.55rem .6rem"></td>
+    <td style="padding:.55rem .6rem;font-weight:700">Total</td>
+    <td style="padding:.55rem .6rem;text-align:center;font-weight:800;color:var(--primary);font-size:1.05rem">${tot}</td>`;
+  tbody.appendChild(tfooter);
 </script>
 </body>
 </html>
