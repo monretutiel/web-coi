@@ -8,6 +8,57 @@
 </head>
 <body>
 
+<!-- ── PASSWORD GATE ────────────────────────────────────── -->
+<div id="pwd-gate" style="
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:inherit;
+">
+  <div style="
+    background:#fff;border-radius:16px;padding:2.5rem 2rem;
+    width:100%;max-width:360px;text-align:center;
+    box-shadow:0 25px 60px rgba(0,0,0,.4);
+  ">
+    <div style="font-size:2rem;font-weight:900;color:#1e3a5f;margin-bottom:.2rem">CI <span style="color:#3b82f6">Quiz</span></div>
+    <p style="font-size:.82rem;color:#64748b;margin-bottom:1.8rem">Comunicaciones Industriales · UD1</p>
+    <p style="font-size:.9rem;font-weight:600;color:#334155;margin-bottom:.8rem">Introduce la contraseña de acceso</p>
+    <input id="pwd-input" type="password" placeholder="Contraseña" style="
+      width:100%;box-sizing:border-box;
+      padding:.75rem 1rem;border:2px solid #e2e8f0;border-radius:8px;
+      font-size:1rem;outline:none;text-align:center;letter-spacing:.15em;
+      transition:border-color .2s;
+    " />
+    <p id="pwd-error" style="color:#dc2626;font-size:.82rem;margin:.6rem 0 0;display:none">Contraseña incorrecta. Inténtalo de nuevo.</p>
+    <button onclick="checkPassword()" style="
+      margin-top:1.2rem;width:100%;padding:.8rem;
+      background:#3b82f6;color:#fff;border:none;border-radius:8px;
+      font-size:.95rem;font-weight:700;cursor:pointer;
+      transition:background .2s;
+    ">Entrar →</button>
+  </div>
+</div>
+<script>
+  document.getElementById('pwd-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPassword();
+  });
+  function checkPassword() {
+    const val = document.getElementById('pwd-input').value;
+    const err = document.getElementById('pwd-error');
+    if (val === 'coi2526') {
+      document.getElementById('pwd-gate').style.display = 'none';
+      sessionStorage.setItem('auth', '1');
+    } else {
+      err.style.display = 'block';
+      document.getElementById('pwd-input').value = '';
+      document.getElementById('pwd-input').focus();
+    }
+  }
+  if (sessionStorage.getItem('auth') === '1') {
+    document.getElementById('pwd-gate').style.display = 'none';
+  }
+</script>
+
 <!-- ── HEADER ───────────────────────────────────────────── -->
 <header>
   <div class="logo">CI <span>Quiz</span></div>
