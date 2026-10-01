@@ -365,6 +365,20 @@ async function saveToGlobalRanking(name, nota, correct, total) {
   if (!res.ok) throw new Error('Error al guardar');
 }
 
+function buildFilterBar(barId, totals, activeFilter, onSelect) {
+  const bar = document.getElementById(barId);
+  bar.innerHTML = '';
+  const all = ['todas', ...totals.sort((a, b) => a - b)];
+  all.forEach(val => {
+    const btn = document.createElement('button');
+    btn.className = 'btn ' + (val === activeFilter ? 'btn-primary' : 'btn-ghost');
+    btn.style.cssText = 'font-size:.78rem;padding:.3rem .75rem';
+    btn.textContent = val === 'todas' ? 'Todas' : `${val} preguntas`;
+    btn.addEventListener('click', () => onSelect(val));
+    bar.appendChild(btn);
+  });
+}
+
 async function renderGlobalRanking() {
   const tbody = document.getElementById('global-ranking-tbody');
   tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem">Cargando...</td></tr>';
@@ -373,29 +387,40 @@ async function renderGlobalRanking() {
     const data = await res.json();
     if (!data) {
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem">Aún no hay resultados globales.</td></tr>';
+      document.getElementById('global-filter-bar').innerHTML = '';
       return;
     }
-    const entries = Object.values(data).sort((a, b) => b.nota - a.nota || a.time - b.time).slice(0, 20);
-    const medals = ['🥇','🥈','🥉'];
-    const roasts = [
-      '¡Eres un máquina! 🤖',
-      '¡Casi, casi... pero no eres el 1! 😤',
-      'Bronce, como el cinturón de herramientas 🔧',
-      'Top 4, eso no lo pone nadie en el CV 😂',
-      'El quinto Beatle de Comunicaciones Industriales 🎸',
-    ];
-    tbody.innerHTML = '';
-    entries.forEach((r, i) => {
-      const roast = i < 5 ? `<br><small style="color:var(--muted);font-weight:400">${roasts[i]}</small>` : '';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td class="rank-pos">${medals[i] || i + 1}</td>
-        <td style="font-weight:600">${escapeHtml(r.nombre || '—')}${roast}</td>
-        <td class="rank-score">${r.nota}/10 <small style="color:var(--muted)">(${r.pct}%)</small></td>
-        <td>${r.correct}/${r.total}</td>
-        <td>${formatTime(r.time)}</td>`;
-      tbody.appendChild(tr);
-    });
+    const allEntries = Object.values(data).sort((a, b) => b.nota - a.nota || a.time - b.time);
+    const totals = [...new Set(allEntries.map(e => e.total))];
+    let activeFilter = 'todas';
+
+    function paintGlobalTable(filter) {
+      activeFilter = filter;
+      buildFilterBar('global-filter-bar', totals, activeFilter, paintGlobalTable);
+      const entries = (filter === 'todas' ? allEntries : allEntries.filter(e => e.total === filter)).slice(0, 20);
+      const medals = ['🥇','🥈','🥉'];
+      const roasts = [
+        '¡Eres un máquina! 🤖',
+        '¡Casi, casi... pero no eres el 1! 😤',
+        'Bronce, como el cinturón de herramientas 🔧',
+        'Top 4, eso no lo pone nadie en el CV 😂',
+        'El quinto Beatle de Comunicaciones Industriales 🎸',
+      ];
+      tbody.innerHTML = '';
+      entries.forEach((r, i) => {
+        const roast = i < 5 ? `<br><small style="color:var(--muted);font-weight:400">${roasts[i]}</small>` : '';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="rank-pos">${medals[i] || i + 1}</td>
+          <td style="font-weight:600">${escapeHtml(r.nombre || '—')}${roast}</td>
+          <td class="rank-score">${r.nota}/10 <small style="color:var(--muted)">(${r.pct}%)</small></td>
+          <td>${r.correct}/${r.total}</td>
+          <td>${formatTime(r.time)}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    paintGlobalTable('todas');
   } catch(e) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#dc2626;padding:1.5rem">Error al cargar el ranking.</td></tr>';
   }
@@ -420,17 +445,28 @@ function renderRanking() {
     'Top 4, eso no lo pone nadie en el CV 😂',
     'El quinto Beatle de Comunicaciones Industriales 🎸',
   ];
-  ranking.forEach((r, i) => {
-    const roast = i < 5 ? `<br><small style="color:var(--muted);font-weight:400">${roasts[i]}</small>` : '';
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="rank-pos">${medals[i] || i + 1}</td>
-      <td class="rank-score">${r.nota}/10 <small style="color:var(--muted)">(${r.pct}%)</small></td>
-      <td>${r.correct}/${r.total}${roast}</td>
-      <td>${formatTime(r.time)}</td>
-      <td class="rank-date">${r.date}</td>`;
-    tbody.appendChild(tr);
-  });
+  const totals = [...new Set(ranking.map(r => r.total))];
+  let activeFilter = 'todas';
+
+  function paintLocalTable(filter) {
+    activeFilter = filter;
+    buildFilterBar('local-filter-bar', totals, activeFilter, paintLocalTable);
+    tbody.innerHTML = '';
+    const entries = filter === 'todas' ? ranking : ranking.filter(r => r.total === filter);
+    entries.forEach((r, i) => {
+      const roast = i < 5 ? `<br><small style="color:var(--muted);font-weight:400">${roasts[i]}</small>` : '';
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="rank-pos">${medals[i] || i + 1}</td>
+        <td class="rank-score">${r.nota}/10 <small style="color:var(--muted)">(${r.pct}%)</small></td>
+        <td>${r.correct}/${r.total}${roast}</td>
+        <td>${formatTime(r.time)}</td>
+        <td class="rank-date">${r.date}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  paintLocalTable('todas');
 }
 
 document.getElementById("btn-clear-ranking").addEventListener("click", () => {
