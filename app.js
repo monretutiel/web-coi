@@ -263,8 +263,9 @@ function renderResults() {
   const wrong = answered - correct;
   const skipped = total - answered;
 
-  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
-  const nota = (correct / total * 10).toFixed(1);
+  const score = Math.max(0, correct - wrong / 3);
+  const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+  const nota = (score / total * 10).toFixed(1);
 
   // Círculo de puntuación
   document.getElementById("score-pct").textContent = `${pct}%`;
@@ -279,13 +280,15 @@ function renderResults() {
   document.getElementById("result-msg").textContent = msg;
 
   // Estadísticas
+  const penalty = wrong / 3;
   document.getElementById("stat-correct").textContent = correct;
   document.getElementById("stat-wrong").textContent = wrong;
+  document.getElementById("stat-penalty").textContent = `−${penalty.toFixed(2)}`;
   document.getElementById("stat-skipped").textContent = skipped;
   document.getElementById("stat-time").textContent = formatTime(state.elapsed);
 
-  // Guardar en ranking local
-  saveToRanking(nota, correct, total);
+  // Guardar en ranking local (nota ya penalizada)
+  saveToRanking(nota, correct, total, wrong);
 
   // Guardar estado para el botón de ranking global
   state.lastResult = { nota: parseFloat(nota), correct, total };
