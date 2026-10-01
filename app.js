@@ -377,12 +377,20 @@ async function renderGlobalRanking() {
     }
     const entries = Object.values(data).sort((a, b) => b.nota - a.nota || a.time - b.time).slice(0, 20);
     const medals = ['🥇','🥈','🥉'];
+    const roasts = [
+      '¡Eres un máquina! 🤖',
+      '¡Casi, casi... pero no eres el 1! 😤',
+      'Bronce, como el cinturón de herramientas 🔧',
+      'Top 4, eso no lo pone nadie en el CV 😂',
+      'El quinto Beatle de Comunicaciones Industriales 🎸',
+    ];
     tbody.innerHTML = '';
     entries.forEach((r, i) => {
+      const roast = i < 5 ? `<br><small style="color:var(--muted);font-weight:400">${roasts[i]}</small>` : '';
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="rank-pos">${medals[i] || i + 1}</td>
-        <td style="font-weight:600">${escapeHtml(r.nombre || '—')}</td>
+        <td style="font-weight:600">${escapeHtml(r.nombre || '—')}${roast}</td>
         <td class="rank-score">${r.nota}/10 <small style="color:var(--muted)">(${r.pct}%)</small></td>
         <td>${r.correct}/${r.total}</td>
         <td>${formatTime(r.time)}</td>`;
@@ -405,12 +413,20 @@ function renderRanking() {
   }
   document.getElementById("ranking-empty").style.display = "none";
   const medals = ["🥇","🥈","🥉"];
+  const roasts = [
+    '¡Eres un máquina! 🤖',
+    '¡Casi, casi... pero no eres el 1! 😤',
+    'Bronce, como el cinturón de herramientas 🔧',
+    'Top 4, eso no lo pone nadie en el CV 😂',
+    'El quinto Beatle de Comunicaciones Industriales 🎸',
+  ];
   ranking.forEach((r, i) => {
+    const roast = i < 5 ? `<br><small style="color:var(--muted);font-weight:400">${roasts[i]}</small>` : '';
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="rank-pos">${medals[i] || i + 1}</td>
       <td class="rank-score">${r.nota}/10 <small style="color:var(--muted)">(${r.pct}%)</small></td>
-      <td>${r.correct}/${r.total}</td>
+      <td>${r.correct}/${r.total}${roast}</td>
       <td>${formatTime(r.time)}</td>
       <td class="rank-date">${r.date}</td>`;
     tbody.appendChild(tr);
