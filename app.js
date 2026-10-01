@@ -143,7 +143,7 @@ function startQuiz() {
     pool = shuffle(pool);
   }
 
-  state.questions = pool;
+  state.questions = pool.map(shuffleOptions);
   state.current = 0;
   state.answers = pool.map(() => ({ chosen: null, correct: false }));
   state.elapsed = 0;
@@ -431,6 +431,19 @@ document.getElementById("btn-new").addEventListener("click", () => showView("hom
 // ── Utils ─────────────────────────────────────────────────────
 function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function shuffleOptions(q) {
+  const indices = q.opciones.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return {
+    ...q,
+    opciones: indices.map(i => q.opciones[i]),
+    correcta: indices.indexOf(q.correcta),
+  };
 }
 
 function shuffle(arr) {
