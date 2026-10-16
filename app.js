@@ -267,7 +267,7 @@ function updateNumQOptions() {
   const total = totalAvailable();
   sel.innerHTML = '';
   if (total === 0) return;
-  const opts = [5, 10, 15, 20, 30, total].filter((v, i, a) => v <= total && a.indexOf(v) === i);
+  const opts = [5, 10, 15, 20, 30, 40, total].filter((v, i, a) => v <= total && a.indexOf(v) === i);
   opts.forEach(n => {
     const o = document.createElement('option');
     o.value = n;
