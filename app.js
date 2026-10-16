@@ -571,7 +571,8 @@ async function renderGlobalRanking() {
           <td style="font-weight:600">${escapeHtml(r.nombre || '—')}${roast}</td>
           <td class="rank-score">${r.nota}/10 <small style="color:var(--muted)">(${r.pct}%)</small></td>
           <td>${r.correct}/${r.total}</td>
-          <td>${formatTime(r.time)}</td>`;
+          <td>${formatTime(r.time)}</td>
+          <td class="rank-date">${r.date || '—'}</td>`;
         tbody.appendChild(tr);
       });
     }
