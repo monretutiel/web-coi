@@ -30,6 +30,18 @@ const TESTS = [
     localKey: 'gsari_ranking',
     get temas() { return TEMAS_GSARI; },
   },
+  {
+    id: 'coi-ut2',
+    titulo: 'Comunicaciones Industriales',
+    ut: 'UT2',
+    subtitulo: 'CFGS Automatización y Robótica Industrial',
+    icono: '🔌',
+    color: '#3b82f6',
+    password: 'coi2526',
+    dbUrl: DB_BASE + '/ranking-coi-ut2',
+    localKey: 'coi_ut2_ranking',
+    get temas() { return TEMAS_COI_UT2; },
+  },
 ];
 
 // ── Estado global ─────────────────────────────────────────
