@@ -329,7 +329,7 @@ const TEMAS_COI_UT2 = [
   },
   {
     id: "ra2_b",
-    nombre: "RA2.b — Modbus TCP: puerto, MBAP header y conexión",
+    nombre: "RA2.b — Interfaces físicas: RS-485, RS-232 y Ethernet industrial",
     preguntas: [
       {
         pregunta: "¿Qué puerto TCP utiliza el protocolo Modbus TCP por estándar?",
@@ -541,15 +541,15 @@ const TEMAS_COI_UT2 = [
         explicacion: "Justificación: Los adaptadores USB-serie (RS-232 y RS-485) instalan un driver FTDI, CH340 o similar que crea un puerto COM virtual. En el Administrador de dispositivos de Windows aparecen bajo «Puertos (COM y LPT)» con un nombre como «USB Serial Port (COM3)». El número de COM asignado es el que hay que configurar en el cliente Modbus (parámetro `port`)."
       },
       {
-        pregunta: "¿Qué tipo de cable es el adecuado para conectar el adaptador USB-RS485 al variador Omron en la práctica de laboratorio?",
+        pregunta: "En la práctica T2 de ENT2, la cadena de conexión hardware es: PC → adaptador USB-RS232 → _____ → par trenzado A/B → puerto RS-485 del variador Omron MX2. ¿Qué componente completa la cadena?",
         opciones: [
-        "Cable coaxial con conector BNC",
-        "Par trenzado (UTP o STP) con terminales o conector DB-9",
-        "Cable plano de datos (ribbon cable) con conector IDC",
-        "Cable USB tipo B con adaptador de 9 pines"
+        "Conversor RS-232↔RS-485",
+        "Segundo adaptador USB-RS485",
+        "Switch Ethernet industrial",
+        "Módem serie RS-232"
         ],
-        correcta: 1,
-        explicacion: "Justificación: RS-485 usa señalización diferencial en par trenzado, que cancela el ruido de modo común. Para la práctica de laboratorio se usa cable UTP (o STP en entornos con mucho ruido) con los hilos A y B del adaptador USB-RS485 conectados a los terminales RS485+ y RS485− del variador Omron. En instalaciones industriales reales se prefiere cable apantallado (STP) para mayor inmunidad."
+        correcta: 0,
+        explicacion: "Justificación: El adaptador USB-RS232 convierte USB en señal RS-232 (±12 V, punto a punto). El conversor RS-232↔RS-485 adapta los niveles de tensión y la topología: transforma la señal RS-232 en señal diferencial RS-485 (par A/B) apta para bus multidrop. Desde los bornes A(+) y B(−) del conversor sale el par trenzado que llega al RJ45 Modbus del variador MX2. Sin el conversor, la señal RS-232 es incompatible eléctricamente con la interfaz RS-485 del variador."
       },
       {
         pregunta: "¿Cuál es la velocidad nominal de Ethernet estándar en el aula y en instalaciones industriales típicas?",
@@ -665,7 +665,7 @@ const TEMAS_COI_UT2 = [
   },
   {
     id: "ra2_c",
-    nombre: "RA2.c — Configuración Modbus en TIA Portal (S7-1200)",
+    nombre: "RA2.c — Configuración de dispositivos Modbus y OPC UA",
     preguntas: [
       {
         pregunta: "En TIA Portal, ¿qué bloque de función configura el S7-1200 como servidor Modbus TCP?",
@@ -701,15 +701,15 @@ const TEMAS_COI_UT2 = [
         explicacion: "Justificación: `ModbusTcpClient(host, port=502)` requiere al menos la dirección IP o hostname del servidor. El puerto es opcional (por defecto 502). El `unit_id` (equivalente a la dirección de esclavo) se pasa en cada llamada de lectura/escritura, no en el constructor."
       },
       {
-        pregunta: "¿Qué comando instala la librería asyncua para OPC UA en Python?",
+        pregunta: "¿Qué comando instala la librería de OPC UA para Python que se usa en las prácticas del aula?",
         opciones: [
         "`pip install opcua`",
         "`pip install asyncua`",
         "`pip install python-opcua`",
         "`pip install siemens-opcua`"
         ],
-        correcta: 1,
-        explicacion: "Justificación: La librería que se usa en las prácticas del aula es `asyncua`, que proporciona tanto una API asíncrona (asyncio) como una síncrona (`asyncua.sync`). La librería `opcua` es una alternativa diferente, con una API distinta; usar el nombre incorrecto genera errores de importación."
+        correcta: 0,
+        explicacion: "Justificación: La librería que se usa en las prácticas del aula es `opcua` (paquete python-opcua). Se instala con `pip install opcua` y se importa con `from opcua import Client`. Proporciona una API síncrona compatible con el gestor de contexto `with Client(URL) as client:`. La librería `asyncua` es una alternativa más reciente pero diferente, con un paquete e importaciones distintos; usar el nombre incorrecto generaría errores de importación en el entorno del aula."
       },
       {
         pregunta: "¿Cuál es el formato estándar de la URL del endpoint OPC UA del S7-1200?",
@@ -800,7 +800,7 @@ const TEMAS_COI_UT2 = [
         explicacion: "Justificación: La entrada CONNECT del MB_SERVER acepta una variable de tipo TCON_IP_v4 definida en un DB global. Esta estructura contiene el identificador hardware de la interfaz PROFINET, el puerto local (502), el modo de conexión (pasivo = el PLC espera la conexión entrante) y otros parámetros de la conexión TCP."
       },
       {
-        pregunta: "¿Cuál es el patrón correcto de asyncua para conectar al servidor OPC UA y asegurar el cierre automático de la conexión?",
+        pregunta: "¿Cuál es el patrón correcto de la librería opcua para conectar al servidor OPC UA y asegurar el cierre automático de la conexión?",
         opciones: [
         "`client = Client(URL); client.open(); ...; client.close()`",
         "`with Client(URL) as client: ...`",
@@ -808,7 +808,7 @@ const TEMAS_COI_UT2 = [
         "`async with Client(URL) as client: ...` (solo en la versión síncrona)"
         ],
         correcta: 1,
-        explicacion: "Justificación: La versión síncrona de asyncua (`from asyncua.sync import Client`) usa el gestor de contexto `with Client(URL) as client:`. Al salir del bloque —tanto en ejecución normal como por excepción— la conexión se cierra automáticamente. Este patrón evita conexiones huérfanas en el servidor OPC UA del PLC."
+        explicacion: "Justificación: La librería opcua (`from opcua import Client`) soporta el gestor de contexto `with Client(URL) as client:`. Al salir del bloque —tanto en ejecución normal como por excepción— se llama automáticamente al cierre de la conexión con el servidor. Este patrón evita conexiones huérfanas en el servidor OPC UA del PLC. El script opcua_plc.py del entregable ENT2 usa este patrón para garantizar la desconexión limpia del S7-1200."
       },
       {
         pregunta: "En el DB_Modbus del S7-1200, cada elemento del Array of Word ocupa 2 bytes. Si el DB tiene 10 elementos (HR[0]..HR[9]), ¿cuántos holding registers puede leer un cliente Modbus?",
@@ -921,7 +921,7 @@ const TEMAS_COI_UT2 = [
         explicacion: "Justificación: NDR (New Data Ready) es una salida Bool del MB_SERVER que se activa durante un ciclo de scan cuando el cliente Modbus ha escrito datos en los holding registers. El programa PLC puede usar NDR para detectar que ha llegado una escritura del cliente y actuar en consecuencia (por ejemplo, copiar el valor de un registro al setpoint del variador de frecuencia local). Es equivalente a una interrupción de comunicación."
       },
       {
-        pregunta: "En asyncua (versión síncrona), ¿cómo se obtiene el nodo de una variable del servidor OPC UA conociendo su NodeId?",
+        pregunta: "En la librería opcua de Python, ¿cómo se obtiene el nodo de una variable del servidor OPC UA conociendo su NodeId?",
         opciones: [
         "`node = client.find_node(nodeId)`",
         "`node = client.get_node(nodeId)`",
@@ -929,7 +929,7 @@ const TEMAS_COI_UT2 = [
         "`node = client.node(nodeId)`"
         ],
         correcta: 1,
-        explicacion: "Justificación: En asyncua, `client.get_node(nodeId)` devuelve un objeto Node sin hacer ninguna comunicación con el servidor. El NodeId puede especificarse como string (`\"ns=3;i=1001\"`) o como objeto `ua.NodeId`. Después se llama `node.get_value()` para leer el valor o `node.set_value(valor)` para escribirlo. `get_node` solo crea la referencia local; la comunicación ocurre en `get_value`/`set_value`."
+        explicacion: "Justificación: En la librería opcua, `client.get_node(nodeId)` devuelve un objeto Node sin hacer ninguna comunicación con el servidor. El NodeId se especifica como string con el formato que usa TIA Portal, por ejemplo `\"ns=3;s=\\\"DB_OPC\\\".\\\"Variable1\\\"\"`. Después se llama `node.get_value()` para leer el valor actual o `node.set_value(valor)` para escribirlo. `get_node` solo crea la referencia local; la comunicación con el PLC ocurre en las llamadas a `get_value` y `set_value`."
       },
       {
         pregunta: "En OPC UA, ¿qué significa el formato `ns=3;i=1001` de un NodeId?",
@@ -1001,7 +1001,7 @@ const TEMAS_COI_UT2 = [
   },
   {
     id: "ra2_d",
-    nombre: "RA2.d — Funciones Modbus: registros, coils y códigos de función",
+    nombre: "RA2.d — Programación Python para comunicaciones industriales",
     preguntas: [
       {
         pregunta: "¿Qué acción realiza la función Modbus 0x06?",
@@ -1092,15 +1092,15 @@ const TEMAS_COI_UT2 = [
         explicacion: "Justificación: 4500 × 0,01 Hz = 45,0 Hz. El variador Omron MX2 expresa la frecuencia de salida en centésimas de hertzio (resolución 0,01 Hz), por lo que un valor de registro de 4500 corresponde a 45,00 Hz, que es la velocidad nominal típica de un motor de 4 polos a 50 Hz en condiciones de carga."
       },
       {
-        pregunta: "¿Cómo se escribe el valor 1500 (frecuencia 15,00 Hz en resolución 0,01 Hz) en el registro de consigna del Omron desde pymodbus?",
+        pregunta: "El enunciado de ENT2 indica que en la Tarea 2 se debe usar «únicamente la función Modbus 0x03 (Read Holding Registers)» sobre el variador Omron. ¿Cuál es la razón principal de esta restricción?",
         opciones: [
-        "`client.write_register(address=1, value=1500, device_id=1)`",
-        "`client.write_register(address=1, value=15.0, device_id=1)`",
-        "`client.write_registers(address=1, values=[1500], device_id=1)`",
-        "Tanto A como C son válidos (función 0x06)"
+        "Pymodbus no soporta las funciones 0x06 ni 0x10 en modo RTU serie",
+        "El variador puede tener un motor conectado; escribir en registros de control o consigna sin autorización podría arrancarlo inesperadamente",
+        "La función 0x06 solo funciona con Modbus TCP, no con Modbus RTU",
+        "El firmware del Omron MX2 solo admite lectura de registros por Modbus"
         ],
-        correcta: 3,
-        explicacion: "Justificación: Ambas llamadas son correctas para escribir un único holding register con pymodbus: `write_register` (función 0x06, escribe un registro) acepta un entero. `write_registers` (función 0x10, escribe múltiples registros) acepta una lista y funciona también para un único elemento. El valor debe ser entero (1500), no float (15.0): Modbus trabaja con enteros de 16 bits; el factor de escala lo aplica el script, no el variador al recibir el dato."
+        correcta: 1,
+        explicacion: "Justificación: La restricción es de seguridad eléctrica: el variador puede estar conectado a un motor real en el taller. Una escritura accidental en el registro de consigna de velocidad (con un valor distinto de cero) o en la palabra de control (bit RUN activo) podría arrancar el motor sin que nadie lo espere. La función 0x03 es de solo lectura y no tiene ningún efecto sobre el estado del variador ni del motor. Pymodbus soporta perfectamente 0x06 y 0x10 en RTU; la restricción es de procedimiento, no técnica."
       },
       {
         pregunta: "¿Qué comprobación mínima debe hacer el script después de llamar a `read_holding_registers()`?",
@@ -1348,7 +1348,7 @@ const TEMAS_COI_UT2 = [
   },
   {
     id: "ra2_e",
-    nombre: "RA2.e — Programación Python/pyModbus",
+    nombre: "RA2.e — Diagnóstico y resolución de problemas en redes industriales",
     preguntas: [
       {
         pregunta: "Según PEP 257, ¿cómo debe escribirse un docstring de una sola línea?",
